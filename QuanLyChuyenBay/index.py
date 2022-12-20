@@ -3,7 +3,7 @@ from QuanLyChuyenBay import app, dao, admin, login, utils
 from flask import render_template, request, redirect, session, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
 import cloudinary.uploader
-from QuanLyChuyenBay import app, dao,db
+from QuanLyChuyenBay import app, dao,db,gio_mua_toi_da,gio_ban_toi_da,thoi_gian_bay_toi_thieu,san_bay_trung_gian_toi_da,thoi_gian_dung_toi_da,thoi_gian_dung_toi_thieu
 from QuanLyChuyenBay.models import LichChuyenBay,san_bay_trung_gian
 from flask import render_template
 import json
@@ -11,7 +11,6 @@ import uuid
 import requests
 import hmac
 import hashlib
-
 
 
 @app.route('/')
@@ -157,9 +156,32 @@ def logout_my_user():
     return redirect('/login')
 
 
+
+
 @login.user_loader
 def load_user(user_id):
     return dao.get_user_by_id(user_id)
+
+
+
+@app.route("/RuleChange" ,methods =['get', 'post'])
+def RuleChange():
+    if request.method.__eq__('POST'):
+        tg_bay_toi_thieu = request.form['thoi_gian_bay']
+        sbtg_toi_da = request.form['sbtg_toi_da']
+        tg_dung_toi_thieu = request.form['thoi_gian_dung_toi_thieu']
+        tg_dung_toi_da = request.form['thoi_gian_dung_toi_da']
+        thoi_gian_ban = request.form['thoi_gian_ban']
+        thoi_gian_mua = request.form['thoi_gian_mua']
+        global gio_mua_toi_da,gio_ban_toi_da,thoi_gian_bay_toi_thieu,san_bay_trung_gian_toi_da,thoi_gian_dung_toi_da,thoi_gian_dung_toi_thieu
+        thoi_gian_dung_toi_thieu = tg_dung_toi_thieu
+        gio_ban_toi_da = thoi_gian_ban
+        gio_mua_toi_da = thoi_gian_mua
+        thoi_gian_bay_toi_thieu = tg_bay_toi_thieu
+        san_bay_trung_gian_toi_da = sbtg_toi_da
+        thoi_gian_dung_toi_da = tg_dung_toi_da
+        return render_template("RuleChange.html", msg ="Áp dụng thành công")
+    return render_template("RuleChange.html")
 @app.route('/lich_chuyen_bay/<int:lich_chuyen_bay_id>')
 def details(lich_chuyen_bay_id):
     lcb = dao.chi_tiet_chuyen_bay(lich_chuyen_bay_id)
@@ -268,10 +290,17 @@ def delete_cart(lich_chuyen_bay_id):
     return jsonify(utils.cart_stats(cart))
 
 
+
 @app.context_processor
 def common_atttributes():
     return{
-        'cart': utils.cart_stats(session.get(app.config['CART_KEY']))
+        'cart': utils.cart_stats(session.get(app.config['CART_KEY'])),
+        'gio_mua_toi_da' : gio_mua_toi_da,
+        'gio_ban_toi_da': gio_ban_toi_da,
+        'thoi_gian_bay_toi_thieu':thoi_gian_bay_toi_thieu,
+        'san_bay_trung_gian_toi_da': san_bay_trung_gian_toi_da,
+        'thoi_gian_dung_toi_da':thoi_gian_dung_toi_da,
+        'thoi_gian_dung_toi_thieu':thoi_gian_dung_toi_thieu
     }
 
 

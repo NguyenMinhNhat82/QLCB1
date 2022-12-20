@@ -17,6 +17,7 @@
         console.info(tonggiatien)
         document.getElementById("total").setAttribute('value',tonggiatien);
     }
+
 </script>
 {% endblock %}
 {% block content %}
@@ -84,7 +85,8 @@
         </div>
         <div class="mb-3 mt-3">
             <label for="address" class="form-label">Địa chỉ</label>
-            <input type="text" class="form-control" id="address" placeholder="Nhập địa chỉ" name="address{{i}}" required>
+            <input type="text" class="form-control" id="address" placeholder="Nhập địa chỉ" name="address{{i}}"
+                   required>
         </div>
         <div class="mb-3 mt-3">
             <label for="email" class="form-label">Email</label>
@@ -97,8 +99,17 @@
     </div>
     <br><br>
     {% endfor %}
-    <input type="number" class="form-control" id="total" value="{{lich_chuyen_bay.price*sove|int}}" name ="total" hidden>
-    <button type="submit" onclick="pay()" class="btn btn-primary">Thanh Toán</button>
+    <input type="number" class="form-control" id="total" value="{{lich_chuyen_bay.price*sove|int}}" name="total" hidden>
+    <div>
+        {% if current_user.is_authenticated %}
+        <button type="submit" onclick="pay()" class="btn btn-primary">{%if current_user.is_authenticated %}{% if
+            current_user.isAdmin()%}Xuất vé{%else%}Thanh toán{%endif%}{%else%}Thanh Toán{%endif%}
+        </button>
+        {% else %}
+        <p>Bạn chưa đăng nhập!!!Hãy<a href="/login?next=/">đăng nhập</a>!</p>
+        {% endif %}
+    </div>
+
 </form>
 {% endblock %}
 <!--http://127.0.0.1:5000/api/pay/1?sex0=Nam&hangve0=2&name0=1&phone_num0=1&address0=1&email0=1&CMND0=1-->

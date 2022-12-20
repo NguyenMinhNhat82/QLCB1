@@ -1,7 +1,11 @@
 {% extends 'layout/base.html' %}
 {% block script %}
 <script>
+
+
+
     function deleteRow(rowid){
+        var btn = document.getElementById("btnAdd")
         var row = document.getElementById(rowid);
         row.parentNode.removeChild(row);
         var ordinal = document.getElementsByClassName("ordinal");
@@ -10,11 +14,17 @@
                 ordinal[i].innerText = i+1;
         total.value = ordinal.length
         console.info(total)
+        if(ordinal.length <{{san_bay_trung_gian_toi_da}}){
+            btn.removeAttribute('disabled', '');
+            btn.classList.add("btn-success");
+        }
+
     }
 
     var index;
     $(document).ready(function(){
         $("#btnAdd").click(function(){
+             console.info(document.getElementById("sbtg").rows.length-1)
              var x = document.getElementById("sbtg").rows.length-1;
              window.index = x+1;
              var i;
@@ -28,13 +38,18 @@
                     {%endif%}
                     {% endfor %}+
                 '</select>';
-             row += '<td><input type="number" name = "thoi_gian_dung'+index+'" step="0.1" required/></td>'
+             row += '<td><input type="number" name = "thoi_gian_dung'+index+'" step="0.1" min="{{thoi_gian_dung_toi_thieu}}" max="{{thoi_gian_dung_toi_da}}" required/></td>'
              row += '<td><input type="text" name = "ghi_chu'+index+'"/></td>'
              row +='<td><input class="btn-danger" type="button" onclick="deleteRow('+index+')" value="X"/>'
              row += '</tr>';
              $('.add').append(row);
              var total = document.getElementById("so-san-bay-trung-gian");
              total.value = index
+             if(x >= {{san_bay_trung_gian_toi_da}}-1){
+                this.setAttribute('disabled', '');
+                this.classList.remove("btn-success");
+                }
+
         });
     });
 
@@ -119,6 +134,7 @@
             </td>
         </tr>
     </table>
+    <h4>Sân bay trung gian(tối đa {{san_bay_trung_gian_toi_da}})</h4>
     <table class="table add" id="sbtg" style="border: 1px solid; border-collapse: collapse;">
         <tr>
             <th>STT</th>
@@ -138,13 +154,12 @@
                     {% endfor %}
                 </select>
             </td>
-            <td><input type="number" name="thoi_gian_dung1" step="0.1" required/></td>
+            <td><input type="number" name="thoi_gian_dung1" step="0.1" min="{{thoi_gian_dung_toi_thieu}}" max="{{thoi_gian_dung_toi_da}}" required/></td>
             <td><input type="text" name="ghi_chu1"/></td>
             <td>
                 <input class="btn-danger" type="button" onclick="deleteRow(1)" value="X"/>
             </td>
         </tr>
-
     </table>
     <input class="btn-success" type="button" id="btnAdd" value="+"/>
     <input type="number" value="1" class="form-control" id="so-san-bay-trung-gian"

@@ -1,7 +1,16 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
-<h1>{{message}}</h1>
+
+{% set limit =  namespace(value =0)%}
+{%set limit.value = gio_mua_toi_da %}
+{%if current_user.is_authenticated %}
+{%if current_user.isAdmin()%}
+{% set limit.value = gio_ban_toi_da %}
+{%else%}
+{%set limit.value = gio_mua_toi_da %}
+{%endif%}
+{%endif%}
 <div class="container">
     <form class="d-flex">
         <input class="form-control me-2" type="text" placeholder="Từ" name="from">
@@ -19,10 +28,10 @@
 {% if lich_chuyen_bay %}
 <div class="row" style="padding-bottom:250px; column-gap: 150px;row-gap: 30px;">
     {% for l in lich_chuyen_bay %}
-    {% set hour = namespace(value = (l.ngay_gio - now).seconds*60*(l.ngay_gio-now).days/3600 )%}
-    <div class="col-md-3 col-sm-12" style="padding:1rem;border: 0.5px solid;margin:5px; position: relative; {%if hour.value < 12
+    {% set hour = namespace(value = (l.ngay_gio - now).seconds/3600 + (l.ngay_gio-now).days*24)%}
+    <div class="col-md-3 col-sm-12" style="padding:1rem;border: 0.5px solid;margin:5px; position: relative; {%if hour.value < (limit.value|float)
                         or l.trang_thai_cho_ngoi == False %}opacity:0.6{%endif%}">
-        {%if hour.value < 12 %}
+        {%if hour.value < (limit.value|float) %}
         <h2><p class="badge bg-secondary bg-danger" style="position: absolute; right: 0px;z-index: 9999">Hết thời gian
             để mua</p></h2>
         {%endif%}
@@ -44,27 +53,33 @@
                 {% else %}
                 <p class="badge bg-danger">Hết chỗ</p>
                 {% endif %}
-                <a href="/lich_chuyen_bay/{{ l.id }}" class="btn btn-primary {%if hour.value < 12
+                <a href="/lich_chuyen_bay/{{ l.id }}" class="btn btn-primary {%if hour.value < (limit.value|float)
                         or l.trang_thai_cho_ngoi == False %}disabled{%endif%}">Chi tiết</a>
                 <div style="margin-top: 5px">
+                    {%if current_user.is_authenticated %}
+                    {%if current_user.isAdmin() %}
+                    {%else%}
                     <a href="javascript:;"
                        onclick="addToCart({{ l.id }}, {{ l.chuyen_bay_id }}, {{ l.price }})"
-                       class="btn btn-danger {%if hour.value < 12
+                       class="btn btn-danger {%if hour.value < (limit.value|float)
                         or l.trang_thai_cho_ngoi == False %}disabled{%endif%}">Thêm
-                        vào giỏ</a>
+                        vào giỏ
+                    </a>
+                    {%endif%}
+                    {%endif%}
                     <br><br>
                     <div style="border:solid 1px; padding:1rem">
                         <form action="/cus_information/chuyen_bay_{{l.chuyen_bay_id}}">
                             <input type="range" value="1" min="1" max="10"
                                    oninput="this.nextElementSibling.value = this.value" name="Soluongve" {%if hour.value
-                            < 12
+                            < (limit.value|float)
                             or l.trang_thai_cho_ngoi == False %}disabled{%endif%}>
                             Số vé:
                             <output>1</output>
                             <br>
                             <button type="submit" class="btn btn-primary btn-warning" {%if hour.value
-                            < 12
-                            or l.trang_thai_cho_ngoi == False %}disabled{%endif%}>Đặt ngay</button>
+                            < (limit.value|float)
+                            or l.trang_thai_cho_ngoi == False %}disabled{%endif%}>{%if current_user.is_authenticated %}{%if current_user.isAdmin() %}Chọn{%else%}Đặt ngay{%endif%}{%else%}Đặt ngay{%endif%}</button>
                         </form>
                     </div>
                 </div>

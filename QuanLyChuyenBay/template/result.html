@@ -1,6 +1,14 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
+
+{% set limit =  namespace(value =0)%}
+{%if current_user.isAdmin()%}
+{% set limit.value = gio_ban_toi_da %}
+{%else%}
+{%set limit.value = gio_mua_toi_da %}
+{%endif%}
+
 <div class="text-center">
     <img style="width: 200px;" class="rounded mx-auto d-blockd"
          src="https://res.cloudinary.com/dexbjwfjg/image/upload/v1669301681/NH_M_27_AIRLINE_free-file_ovn2ao.png"
@@ -10,10 +18,10 @@
 {% if lich_chuyen_bay %}
 <div class="row" style="padding-bottom: 250px;padding-bottom:250px; column-gap: 150px;row-gap: 30px;">
     {% for l in lich_chuyen_bay %}
-    {% set hour = namespace(value = (l.ngay_gio - now).seconds*60*(l.ngay_gio-now).days/3600 )%}
-    <div class="col-md-3 col-sm-12 " style="padding:1rem;position: relative; border: solid 1px;{%if hour.value < 12
+    {% set hour = namespace(value = (l.ngay_gio - now).seconds/3600 + (l.ngay_gio-now).days*24)%}
+    <div class="col-md-3 col-sm-12 " style="padding:1rem;position: relative; border: solid 1px;{%if hour.value < (limit.value|float)
                         or l.trang_thai_cho_ngoi == False %}opacity:0.6{%endif%}">
-        {%if hour.value < 12  %}
+        {%if hour.value < (limit.value|float)  %}
         <h2><p class="badge bg-secondary bg-danger" style="position: absolute; right: 5px;z-index: 9999;opacity:1!important">Hết thời gian</p></h2>
         {%endif%}
         <div class="card">
@@ -34,7 +42,7 @@
                 {% else %}
                 <p class="badge bg-danger">Hết chỗ</p>
                 {% endif %}
-                <a href="/cus_information/{{l.id}}&{{sove}}" class="btn btn-primary {%if hour.value < 12
+                <a href="/cus_information/{{l.id}}&{{sove}}" class="btn btn-primary {%if hour.value < (limit.value|float)
                         or l.trang_thai_cho_ngoi == False %}disabled{%endif%}">Chọn</a>
             </div>
         </div>

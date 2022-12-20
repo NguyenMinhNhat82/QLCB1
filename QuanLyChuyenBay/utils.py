@@ -10,3 +10,7 @@ def cart_stats(cart):
         'total_quantity': total_quantity,
         'total_amount': total_amount
     }
+
+def set_tg_bay_toi_thieu(tgbay):
+    if tgbay:
+        return tgbay

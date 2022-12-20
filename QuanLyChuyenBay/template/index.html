@@ -1,0 +1,80 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<h1>{{message}}</h1>
+<div class="container">
+    <form class="d-flex">
+        <input class="form-control me-2" type="text" placeholder="Từ" name="from">
+        <input class="form-control me-2" type="text" placeholder="Đến" name="to">
+        <input class="form-control me-2" type="date" placeholder="Ngày bay" name="date">
+        <button class="btn btn-primary" type="submit">Tìm</button>
+    </form>
+</div>
+<div class="text-center">
+    <img style="width: 200px;" class="rounded mx-auto d-blockd"
+         src="https://res.cloudinary.com/dexbjwfjg/image/upload/v1669301681/NH_M_27_AIRLINE_free-file_ovn2ao.png"
+         alt="Nhóm 27">
+</div>
+<h1 class="text-center">Trang chủ</h1>
+{% if lich_chuyen_bay %}
+<div class="row" style="padding-bottom:250px; column-gap: 150px;row-gap: 30px;">
+    {% for l in lich_chuyen_bay %}
+    {% set hour = namespace(value = (l.ngay_gio - now).seconds*60*(l.ngay_gio-now).days/3600 )%}
+    <div class="col-md-3 col-sm-12" style="padding:1rem;border: 0.5px solid;margin:5px; position: relative; {%if hour.value < 12
+                        or l.trang_thai_cho_ngoi == False %}opacity:0.6{%endif%}">
+        {%if hour.value < 12 %}
+        <h2><p class="badge bg-secondary bg-danger" style="position: absolute; right: 0px;z-index: 9999">Hết thời gian
+            để mua</p></h2>
+        {%endif%}
+        <div class="card">
+            <div style="width: 100%">
+                <img class="card-img-top" src="{{ l.image}}" alt="{{ l.image }}">
+            </div>
+            <div class="card-body">
+                {% for f in chuyen_bay %}
+                {% if f.id == l.chuyen_bay_id %}
+                <h4 class="card-title">{{ f.ten_chuyen_bay }}</h4>
+                {% endif %}
+                {% endfor%}
+                <br><br>
+                <h5 class="card-text">{{ "{:,.1f}".format(l.price) }} VNĐ</h5>
+                <p class="card-text">{{l.ngay_gio}}</p>
+                {% if l.trang_thai_cho_ngoi == True %}
+                <p class="badge bg-success">Còn chỗ</p>
+                {% else %}
+                <p class="badge bg-danger">Hết chỗ</p>
+                {% endif %}
+                <a href="/lich_chuyen_bay/{{ l.id }}" class="btn btn-primary {%if hour.value < 12
+                        or l.trang_thai_cho_ngoi == False %}disabled{%endif%}">Chi tiết</a>
+                <div style="margin-top: 5px">
+                    <a href="javascript:;"
+                       onclick="addToCart({{ l.id }}, {{ l.chuyen_bay_id }}, {{ l.price }})"
+                       class="btn btn-danger {%if hour.value < 12
+                        or l.trang_thai_cho_ngoi == False %}disabled{%endif%}">Thêm
+                        vào giỏ</a>
+                    <br><br>
+                    <div style="border:solid 1px; padding:1rem">
+                        <form action="/cus_information/chuyen_bay_{{l.chuyen_bay_id}}">
+                            <input type="range" value="1" min="1" max="10"
+                                   oninput="this.nextElementSibling.value = this.value" name="Soluongve" {%if hour.value
+                            < 12
+                            or l.trang_thai_cho_ngoi == False %}disabled{%endif%}>
+                            Số vé:
+                            <output>1</output>
+                            <br>
+                            <button type="submit" class="btn btn-primary btn-warning" {%if hour.value
+                            < 12
+                            or l.trang_thai_cho_ngoi == False %}disabled{%endif%}>Đặt ngay</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<p class="text-danger">Không có chuyến bay nào!</p>
+{% endif %}
+{% endblock %}
